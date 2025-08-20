@@ -37,7 +37,7 @@ CLI tool to generate GORM-ready models, entities, and migrations in Go projects.
 ### 1. Generate a model
 
 ```bash
-go run main.go --name User --attributes name:string,email:string,age:int
+modelgen-cli --name User --attributes name:string,email:string,age:int
 ```
 
 - Creates:
@@ -59,16 +59,16 @@ go install github.com/REXY4/modelgen-cli@latest
 
 ```bash
 # PostgreSQL
-go run main.go --init --db postgres
+modelgen-cli --init --db postgres
 
 # MySQL
-go run main.go --init --db mysql
+modelgen-cli --init --db mysql
 
 # SQLite
-go run main.go --init --db sqlite
+modelgen-cli --init --db sqlite
 
 # SQL Server
-go run main.go --init --db sqlserver
+modelgen-cli --init --db sqlserver
 
 ```
 
@@ -79,14 +79,14 @@ go run main.go --init --db sqlserver
 ### 2. Generate a model
 
 ```bash
-modelgen --name User --attributes name:string,email:string
+modelgen-cli --name User --attributes name:string,email:string
 
 ```
 
 ### 3. Add relations (optional)
 
 ```bash
-modelgen --name User --attributes name:string,email:string,age:int \
+modelgen-cli --name User --attributes name:string,email:string,age:int \
   --relations Products:Product:one2many,Tags:Tag:many2many
 ```
 
