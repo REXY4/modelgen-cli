@@ -1,6 +1,6 @@
 # modelgen-cli
 
-CLI tool to generate GORM-ready models & entities in Go projects.
+CLI tool to generate GORM-ready models, entities, and migrations in Go projects.
 
 **Author:** M.RIZKI ISWANTO <REXY4>
 **GitHub:** [github.com/REXY4/modelgen-cli](https://github.com/REXY4/modelgen-cli)
@@ -19,6 +19,19 @@ CLI tool to generate GORM-ready models & entities in Go projects.
 
 ---
 
+## CLI Options
+
+```bash
+--name string        # Model name, e.g.: User
+--attributes string  # Model attributes, e.g.: name:string,email:string
+--folder string      # Base folder of the project (default: ".")
+--relations string   # Relations, e.g.: Products:Product:one2many,Tags:Tag:many2many
+--init               # Generate configs/db.go for supported databases
+--db string          # Database type: postgres, mysql, sqlite, sqlserver (default: postgres)
+```
+
+---
+
 ## Usage
 
 ### 1. Generate a model
@@ -28,29 +41,52 @@ go run main.go --name User --attributes name:string,email:string,age:int
 ```
 
 - Creates:
-
-  - `internal/models/user.go` → GORM-ready model
-  - `internal/entity/user.go` → plain entity struct
+  - `configs/db.go`
+  - `internal/models/<Model Name>.go`
+  - `internal/entity/<Entity Name>.go`
+  - `internal/migrations/<timestamp>_create_<Migration Name>.go`
 
 ---
 
-### 2. Generate another model
+### 1. Install via `go install`
 
 ```bash
-go run main.go --name Product --attributes name:string,price:float
+go install github.com/REXY4/modelgen-cli@latest
+
 ```
 
-- Creates:
+### 2. Initialize database config
 
-  - `internal/models/product.go`
-  - `internal/entity/product.go`
+```bash
+# PostgreSQL
+go run main.go --init --db postgres
 
----
+# MySQL
+go run main.go --init --db mysql
+
+# SQLite
+go run main.go --init --db sqlite
+
+# SQL Server
+go run main.go --init --db sqlserver
+
+```
+
+- Creates `configs/db.go` for the chosen database.
+- Supported databases: **postgres, mysql, sqlite, sqlserver**.
+- Automatically configures GORM connection using DSN.
+
+### 2. Generate a model
+
+```bash
+modelgen --name User --attributes name:string,email:string
+
+```
 
 ### 3. Add relations (optional)
 
 ```bash
-go run main.go --name User --attributes name:string,email:string,age:int \
+modelgen --name User --attributes name:string,email:string,age:int \
   --relations Products:Product:one2many,Tags:Tag:many2many
 ```
 
@@ -60,30 +96,6 @@ go run main.go --name User --attributes name:string,email:string,age:int \
 Products []Product `gorm:"foreignKey:UserID"`
 Tags     []Tag     `gorm:"many2many:user_tag"`
 ```
-
----
-
-### 4. Build CLI binary (optional)
-
-```bash
-go build -o modelgen
-./modelgen --name User --attributes name:string,email:string
-```
-
-- Places a standalone executable (`modelgen` or `modelgen.exe`) that can be used anywhere.
-
----
-
-### 5. Install via `go install`
-
-```bash
-go install github.com/REXY4/modelgen-cli@latest
-modelgen-cli --name User --attributes name:string,email:string
-```
-
-- Installs CLI globally in `$GOPATH/bin` or `$HOME/go/bin`.
-
----
 
 ## Supported Data Types
 
@@ -158,5 +170,23 @@ import "github.com/lib/pq"
 | One-to-One    | `Profile`       | `gorm:"foreignKey:UserID"`  |
 | One-to-Many   | `[]Product`     | `gorm:"foreignKey:UserID"`  |
 | Many-to-Many  | `[]Tag`         | `gorm:"many2many:user_tag"` |
+
+---
+
+### 7. Migration Usage
+
+After generating models with migrations:
+
+```go
+import "yourapp/internal/migrations"
+
+func main() {
+    migrations.MigrateAll()    // Run all migrations
+    // migrations.RollbackAll() // Rollback all tables if needed
+}
+```
+
+- `MigrateAll()` runs `Up<Model>()` for each generated model.
+- `RollbackAll()` runs `Down<Model>()` for each generated model.
 
 ---
