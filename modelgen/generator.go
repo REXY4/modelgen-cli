@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 type FieldInfo struct {
@@ -11,7 +12,7 @@ type FieldInfo struct {
 	Type string
 }
 
-// GenerateModelEntity membuat GORM-ready model & entity
+// GenerateModelEntity membuat GORM-ready model, entity, dan file migrasi
 func GenerateModelEntity(modelName string, fields []FieldInfo, baseFolder string) error {
 	if modelName == "" || len(fields) == 0 {
 		return fmt.Errorf("modelName dan fields harus diisi")
@@ -19,10 +20,15 @@ func GenerateModelEntity(modelName string, fields []FieldInfo, baseFolder string
 
 	modelsFolder := fmt.Sprintf("%s/internal/models", baseFolder)
 	entityFolder := fmt.Sprintf("%s/internal/entity", baseFolder)
+	migrationsFolder := fmt.Sprintf("%s/internal/migrations", baseFolder)
+
 	if err := os.MkdirAll(modelsFolder, os.ModePerm); err != nil {
 		return err
 	}
 	if err := os.MkdirAll(entityFolder, os.ModePerm); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(migrationsFolder, os.ModePerm); err != nil {
 		return err
 	}
 
@@ -35,6 +41,14 @@ func GenerateModelEntity(modelName string, fields []FieldInfo, baseFolder string
 	// Tulis entity
 	entityFile := fmt.Sprintf("%s/%s.go", entityFolder, strings.ToLower(modelName))
 	if err := writeFile(entityFile, modelName, fields, false); err != nil {
+		return err
+	}
+
+	moduleName, err := getModuleName(baseFolder)
+	if err != nil {
+		return err
+	}
+	if err := createMigrationFile(modelName, migrationsFolder, moduleName); err != nil {
 		return err
 	}
 
@@ -87,6 +101,31 @@ type %s struct {
 
 	fmt.Println("Create file:", filename)
 	return nil
+}
+
+func createMigrationFile(modelName, migrationsFolder, moduleName string) error {
+	timestamp := time.Now().Format("20060102_150405")
+	filename := fmt.Sprintf("%s/%s_create_%s.go", migrationsFolder, timestamp, strings.ToLower(modelName))
+
+	content := fmt.Sprintf(`package migrations
+
+import (
+	"%s/configs"
+	"%s/internal/models"
+)
+
+// Up migrates table %s
+func Up%s() {
+	configs.DB.AutoMigrate(&models.%s{})
+}
+
+// Down rolls back table %s
+func Down%s() {
+	configs.DB.Migrator().DropTable(&models.%s{})
+}
+`, moduleName, moduleName, modelName, modelName, modelName, modelName, modelName, modelName)
+
+	return os.WriteFile(filename, []byte(content), 0644)
 }
 
 func mapType(t string) string {

@@ -1,48 +1,41 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"log"
+	"strings"
 
 	"github.com/REXY4/modelgen-cli/modelgen"
 )
 
 func main() {
-	baseFolder := "." // project root
+	modelName := flag.String("name", "", "Model name, e.g., User")
+	attributes := flag.String("attributes", "", "Model attributes, e.g., name:string,email:string")
+	baseFolder := flag.String("path", ".", "Project base folder (default: current folder)")
+	flag.Parse()
 
-	// --- Contoh 1: Generate model User ---
-	fieldsUser := []modelgen.FieldInfo{
-		{Name: "name", Type: "string"},
-		{Name: "email", Type: "string"},
-		{Name: "age", Type: "int"},
+	if *modelName == "" || *attributes == "" {
+		log.Fatal("Usage: go run main.go --name User --attributes name:string,email:string")
 	}
 
-	err := modelgen.GenerateModelEntity("User", fieldsUser, baseFolder)
+	// --- Parse fields ---
+	fields := []modelgen.FieldInfo{}
+	for _, attr := range strings.Split(*attributes, ",") {
+		parts := strings.Split(attr, ":")
+		if len(parts) != 2 {
+			log.Fatalf("Invalid attribute format: %s", attr)
+		}
+		fields = append(fields, modelgen.FieldInfo{
+			Name: parts[0],
+			Type: parts[1],
+		})
+	}
+
+	// --- Generate Model, Entity, Migration ---
+	err := modelgen.GenerateModelEntity(*modelName, fields, *baseFolder)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to generate model: %v", err)
 	}
 
-	// --- Contoh 2: Generate model Product ---
-	fieldsProduct := []modelgen.FieldInfo{
-		{Name: "name", Type: "string"},
-		{Name: "price", Type: "float"},
-	}
-
-	err = modelgen.GenerateModelEntity("Product", fieldsProduct, baseFolder)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// --- Contoh 3: Tambahkan relasi One2Many User → Product ---
-	relations := []modelgen.RelationInfo{
-		{FieldName: "Products", Target: "Product", Type: modelgen.One2Many},
-	}
-
-	modelFile := fmt.Sprintf("%s/internal/models/%s.go", baseFolder, "user")
-	err = modelgen.AddRelation(modelFile, relations, "User")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Example: Model & Entity berhasil dibuat dengan relasi!")
+	log.Println("✅ Model, Entity, and Migration successfully created!")
 }
