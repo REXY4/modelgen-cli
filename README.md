@@ -34,20 +34,6 @@ CLI tool to generate GORM-ready models, entities, and migrations in Go projects.
 
 ## Usage
 
-### 1. Generate a model
-
-```bash
-modelgen-cli --name User --attributes name:string,email:string,age:int
-```
-
-- Creates:
-  - `configs/db.go`
-  - `internal/models/<Model Name>.go`
-  - `internal/entity/<Entity Name>.go`
-  - `internal/migrations/<timestamp>_create_<Migration Name>.go`
-
----
-
 ### 1. Install via `go install`
 
 ```bash
@@ -72,18 +58,32 @@ modelgen-cli --init --db sqlserver
 
 ```
 
+### 3. Generate a model
+
+```bash
+modelgen-cli --name User --attributes name:string,email:string,age:int
+```
+
+- Creates:
+  - `configs/db.go`
+  - `internal/models/<Model Name>.go`
+  - `internal/entity/<Entity Name>.go`
+  - `internal/migrations/<timestamp>_create_<Migration Name>.go`
+
+---
+
 - Creates `configs/db.go` for the chosen database.
 - Supported databases: **postgres, mysql, sqlite, sqlserver**.
 - Automatically configures GORM connection using DSN.
 
-### 2. Generate a model
+### 4. Generate a model
 
 ```bash
 modelgen-cli --name User --attributes name:string,email:string
 
 ```
 
-### 3. Add relations (optional)
+### 5. Add relations (optional)
 
 ```bash
 modelgen-cli --name User --attributes name:string,email:string,age:int \
