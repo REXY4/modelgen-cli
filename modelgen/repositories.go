@@ -10,7 +10,6 @@ func CreateRepositoryFile(filename, modelName, moduleName string) error {
 	content := fmt.Sprintf(`package %s
 
 import (
-	models "%s/database/models"
 	"gorm.io/gorm"
 )
 
@@ -53,7 +52,7 @@ func (r *%sRepositoryImpl) Update(data *%s) error {
 func (r *%sRepositoryImpl) Delete(id uint) error {
 	return r.db.Delete(&%s{}, id).Error
 }
-`, strings.ToLower(modelName),moduleName, modelName,modelName, modelName, modelName, modelName,
+`, strings.ToLower(modelName), modelName,modelName, modelName, modelName, modelName,
 		modelName, modelName, modelName, modelName,
 		modelName, modelName, modelName,
 		modelName, modelName, modelName,

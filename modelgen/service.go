@@ -9,10 +9,7 @@ import (
 func CreateServiceFile(filename, modelName, moduleName string) error {
 	content := fmt.Sprintf(`package %s
 
-import (
-	models "%s/database/models"
-	
-)
+
 
 type %sService interface {
 	GetAll() ([]%s, error)
@@ -49,7 +46,7 @@ func (s *%sServiceImpl) Update(data *%s) error {
 func (s *%sServiceImpl) Delete(id uint) error {
 	return s.repo.Delete(id)
 }
-`, strings.ToLower(modelName),moduleName,modelName,
+`, strings.ToLower(modelName),modelName,
 		modelName, modelName, modelName, modelName, modelName,
 		modelName, modelName,
 		modelName, modelName, modelName, modelName,

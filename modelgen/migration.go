@@ -15,7 +15,7 @@ func CreateMigrationFile(modelName, migrationsFolder, moduleName string) error {
 
 import (
 	"%s/configs"
-	"%s/database/models"
+	models "%s/database/models"
 )
 
 // Up migrates table %s
