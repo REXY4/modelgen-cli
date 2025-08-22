@@ -61,7 +61,7 @@ modelgen-cli --init --db sqlserver
 ### 3. Generate a model
 
 ```bash
-modelgen-cli --name User --attributes name:string,email:string,age:int
+modelgen-cli --name User --attributes "name:string,email:string,age:int"
 ```
 
 - Creates:
@@ -79,15 +79,15 @@ modelgen-cli --name User --attributes name:string,email:string,age:int
 ### 4. Generate a model
 
 ```bash
-modelgen-cli --name User --attributes name:string,email:string
+modelgen-cli --name User --attributes "name:string,email:string"
 
 ```
 
 ### 5. Add relations (optional)
 
 ```bash
-modelgen-cli --name User --attributes name:string,email:string,age:int \
-  --relations Products:Product:one2many,Tags:Tag:many2many
+modelgen-cli --name User --attributes "name:string,email:string,age:int" \
+  --relations "Products:Product:one2many,Tags:Tag:many2many"
 ```
 
 - Updates `internal/models/user.go` to include:
